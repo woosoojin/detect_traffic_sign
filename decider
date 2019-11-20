@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+################################################################################
+# Copyright 2018 ROBOTIS CO., LTD.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+# Author: Leon Jung, Gilbert
+
+import rospy
+from geometry_msgs.msg import Twist
+import sys, select, os
+import tty, termios
+from std_msgs.msg import String
+
+WAFFLE_MAX_LIN_VEL = 0.26
+WAFFLE_MAX_ANG_VEL = 1.82
+
+LIN_VEL_STEP_SIZE = 0.01
+ANG_VEL_STEP_SIZE = 0.1
+
+msg = """
+Control Your TurtleBot3!
+---------------------------
+Moving around:
+        w
+   a    s    d
+        x
+
+w/x : increase/decrease linear velocity (Burger : ~ 0.22, Waffle and Waffle Pi : ~ 0.26)
+a/d : increase/decrease angular velocity (Burger : ~ 2.84, Waffle and Waffle Pi : ~ 1.82)
+
+space key, s : force stop
+
+CTRL-C to quit
+"""
+
+e = """
+Communications Failed
+"""
+
+def getKey():
+    tty.setraw(sys.stdin.fileno())
+    rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+    if rlist:
+        key = sys.stdin.read(1)
+    else:
+        key = ''
+
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+    return key
+
+def vels(target_linear_vel, target_angular_vel):
+    return "currently:\tlinear vel %s\t angular vel %s " % (target_linear_vel,target_angular_vel)
+
+def makeSimpleProfile(output, input, slop):
+    if input > output:
+        output = min( input, output + slop )
+    elif input < output:
+        output = max( input, output - slop )
+    else:
+        output = input
+
+    return output
+
+def constrain(input, low, high):
+    if input < low:
+      input = low
+    elif input > high:
+      input = high
+    else:
+      input = input
+
+    return input
+
+def checkLinearLimitVelocity(vel):
+    vel = constrain(vel, -WAFFLE_MAX_LIN_VEL, WAFFLE_MAX_LIN_VEL)
+    return vel
+
+def checkAngularLimitVelocity(vel):
+    vel = constrain(vel, -WAFFLE_MAX_ANG_VEL, WAFFLE_MAX_ANG_VEL)
+    return vel
+
+
+SELECTION = 'None'
+
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + "I got %s", data.data)
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+
+    turtlebot3_model = rospy.get_param("model", "burger")
+ 
+
+    if(data.data == 'stop'):
+        print("stop sign detected!!!!!!!!!!!!!!!!!!--------------------")
+        target_linear_vel   = 0.0
+        control_linear_vel  = 0.0
+        target_angular_vel  = 0.0
+        control_angular_vel = 0.0
+        print(vels(target_linear_vel, target_angular_vel))
+        rospy.sleep(300)
+        
+        #rospy.init_node('turtlebot3_teleop')
+
+    twist = Twist()
+
+    control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+    twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+
+    control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+    twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
+                
+    pub.publish(twist)
+        
+        
+
+def Decider():
+    rospy.init_node('listner', anonymous=True)
+    rospy.Subscriber("chatter", String, callback)
+    rospy.spin()
+    """
+    status = 0
+    target_linear_vel   = 0.0
+    target_angular_vel  = 0.0
+    control_linear_vel  = 0.0
+    control_angular_vel = 0.0
+
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+
+    rospy.loginfo("Selection: " + SELECTION)
+    if(SELECTION=='stop'):
+        target_linear_vel = 0.01
+        print vels(target_linear_vel,target_angular_vel)
+        # STOP sign
+        #if SELECTION == 2:
+            #print("Hey turtlebot, Stop!")
+            #target_linear_vel   = 0.0
+            #control_linear_vel  = 0.0
+            #target_angular_vel  = 0.0
+            #control_angular_vel = 0.0
+
+            # mode change
+            # self.launch_detect_stop = roslaunch.scriptapi.ROSLaunch()
+            # self.launch_detect_stop = roslaunch.parent.ROSLaunchParent(self.uuid, [self.ros_package_path + "turtlebot3_teleop/launch/turtlebot3_teleop_key.launch"])
+            # print msg
+            # self.launch_detect_stop.start()   
+            # time.sleep(3)
+            # self.launch_detect_stop.shutdown()
+    """
+
+def main(self):
+    rospy.spin()
+
+if __name__ == '__main__':
+    Decider()
