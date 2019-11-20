@@ -120,13 +120,83 @@ def checkAngularLimitVelocity(vel):
       vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
 
     return vel
+"""
+def moving(self, moving):
+    # pass the information
+    pub = rospy.Publisher('move', Twist, queue_size=10)
+    #rospy.init_node('talker', anonymous=True)
+    #rate = rospy.Rate(10) # 10hz
+                    
+    rospy.loginfo(moving)
+    pub.publish(moving)
+"""
+
+#RESULT = Twist()
+
+def callback(data):
+  #rospy.Subscriber("cmd_vel", Twist)
+  #rospy.loginfo(data.linear.x)
+  twist = Twist()
+  twist = data
+
+  pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+  pub.publish(twist)
+  #rospy.loginfo(twist)
+  #RESULT = twist
+  """
+  
+  
+  Twist().linear.y = data.linear.y
+  Twist().linear.z = data.linear.z
+  Twist().angular.x = data.linear.x
+  Twist().angular.y = data.linear.y
+  Twist().angular.z = data.linear.z
+  
+  rospy.loginfo(Twist)
+  """
+"""
+def moving():
+  rospy.init_node('moving', anonymous=True)
+  rospy.Subscriber("move")
+  #rospy.Subscriber("move", Twist, callback)
+
+  rospy.spin()
+""" 
+
+def runner():
+  rospy.init_node('moving', anonymous=True)
+  rospy.Subscriber("move", Twist, callback)
+
+  rospy.spin()
 
 if __name__=="__main__":
-    rospy.init_node('turtlebot3_teleop')
+  runner()
+  """
+  rospy.init_node('moving', anonymous=True)
+  
+  while(1):
+    rospy.Subscriber("move", Twist, callback)
+
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    
+    #pub.publish(RESULT)
+  """
+  """
+    rospy.init_node('detect_talker')
+    #pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
     pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 
     turtlebot3_model = rospy.get_param("model", "burger")
+    while(1):
+      rospy.Subscriber("move", Twist, callback)
+      twist = Twist()
 
+      #target_linear_vel   = Twist().target_linear_vel
+      #control_linear_vel  = Twist().control_linear_vel
+      #target_angular_vel  = Twist().target_angular_vel
+      #control_angular_vel = Twist().control_angular_vel
+      pub.publish(twist)
+  
     status = 0
     target_linear_vel   = 0.0
     target_angular_vel  = 0.0
@@ -145,8 +215,9 @@ if __name__=="__main__":
         control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
         twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
         
-        pub.publish(twist)
-"""
+        #pub.publish(twist)
+        moving(twist)
+
     try:
         print(msg)
         while(1):
@@ -184,4 +255,4 @@ if __name__=="__main__":
 
     if os.name != 'nt':
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
-"""
+    """

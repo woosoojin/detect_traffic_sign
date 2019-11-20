@@ -95,40 +95,84 @@ def checkAngularLimitVelocity(vel):
 
 
 SELECTION = 'None'
+"""
+def starter(data):
+    rospy.loginfo(rospy.get_caller_id() + "moving %s", data.data) # from detect_talker
+    rospy.loginfo(data.data)
 
-def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + "I got %s", data.data)
     pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 
-    turtlebot3_model = rospy.get_param("model", "burger")
- 
+    status = 0
+    target_linear_vel   = 0.1
+    target_angular_vel  = 0.0
+    control_linear_vel  = 0.0
+    control_angular_vel = 0.0
+    
+    starter = Twist()
 
-    if(data.data == 'stop'):
-        print("stop sign detected!!!!!!!!!!!!!!!!!!--------------------")
+    pub.publish(starter)
+"""
+
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + "I got %s", data.data) # from detect_sign
+    #data.data = "Substitution!!!!!!!!----------------------------"
+    #rospy.loginfo(data.data)
+    
+    pub = rospy.Publisher('move', Twist, queue_size=10) # to turtlebot3
+    turtlebot3_model = rospy.get_param("model", "burger")
+
+    status = 0
+    target_linear_vel   = 0.0
+    target_angular_vel  = 0.0
+    control_linear_vel  = 0.0
+    control_angular_vel = 0.0
+    
+    
+    if(data.data == 'SPEED_30'):
+        target_linear_vel = 0.0
+        target_linear_vel = checkLinearLimitVelocity(target_linear_vel + LIN_VEL_STEP_SIZE)
+        status = status + 1
+        rospy.loginfo(target_linear_vel)
+        #rospy.loginfo("speed: 30m/s")
+
+        twist = Twist()
+
+        control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+
+        control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
+                                
+        pub.publish(twist)
+
+    elif(data.data == 'stop'):
         target_linear_vel   = 0.0
         control_linear_vel  = 0.0
         target_angular_vel  = 0.0
         control_angular_vel = 0.0
         print(vels(target_linear_vel, target_angular_vel))
-        rospy.sleep(300)
+        #rospy.loginfo("speed: 0m/s")
         
-        #rospy.init_node('turtlebot3_teleop')
+        twist = Twist()
 
-    twist = Twist()
+        control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
 
-    control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
-    twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
-
-    control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
-    twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
-                
-    pub.publish(twist)
+        control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
+                                
+        pub.publish(twist)
+        
+    
+        #rospy.loginfo("which????????")
+        #rospy.loginfo(twist)
         
         
-
+ 
 def Decider():
     rospy.init_node('listner', anonymous=True)
     rospy.Subscriber("chatter", String, callback)
+
     rospy.spin()
     """
     status = 0
@@ -158,10 +202,11 @@ def Decider():
             # self.launch_detect_stop.start()   
             # time.sleep(3)
             # self.launch_detect_stop.shutdown()
+   
     """
-
-def main(self):
-    rospy.spin()
 
 if __name__ == '__main__':
     Decider()
+    #rospy.init_node('listner', anonymous=True)
+    #while(1):
+    #    rospy.Subscriber("chatter", String, callback)

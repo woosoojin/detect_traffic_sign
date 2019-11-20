@@ -264,7 +264,7 @@ class DetectSign():
                 rospy.loginfo("TrafficSign 3")
 
                 image_out_num = 3
-                SELECTION = image_out_num
+                
 
         else:
             matchesMask3 = None
@@ -316,7 +316,7 @@ class DetectSign():
                 rospy.loginfo("TrafficSign 5")
 
                 image_out_num = 5
-                SELECTION = image_out_num
+                SELECTION = "SPEED_30"
 
         else:
             matchesMask5 = None
@@ -388,6 +388,7 @@ class DetectSign():
                             flags = 2)
 
             final5 = cv2.drawMatches(cv_image_input,kp1,self.img5,self.kp5,good5,None,**draw_params5)
+            self.talker(SELECTION)
             """
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
@@ -408,6 +409,7 @@ class DetectSign():
         control_angular_vel = 0.0
 
         while(1):
+            rospy.loginfo("i am here")
             target_linear_vel = 0.01
             print vels(target_linear_vel,target_angular_vel)
 
