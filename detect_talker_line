@@ -166,9 +166,9 @@ def moving():
 def runner():
   rospy.init_node('moving', anonymous=True)
 
-  #rospy.Subscriber("line_tracing", Twist, callback)
+  rospy.Subscriber("line_tracing", Twist, callback)
 
-  rospy.Subscriber("move", Twist, callback)
+  #rospy.Subscriber("move", Twist, callback) //for traffic sign detect!!!!!!!!!!!!!!!! important
 
   rospy.spin()
 

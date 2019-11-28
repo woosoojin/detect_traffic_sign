@@ -142,7 +142,6 @@ class DetectSign():
             # subscribes raw image
             self.sub_image_original = rospy.Subscriber('/detect/image_input', Image, self.cbFindTrafficSign, queue_size = 1)
         
-        """
         self.pub_traffic_sign = rospy.Publisher('/detect/traffic_sign', UInt8, queue_size=1)
 
         if self.pub_image_type == "compressed":
@@ -151,7 +150,7 @@ class DetectSign():
         elif self.pub_image_type == "raw":
             # publishes traffic sign image in raw type
             self.pub_image_traffic_sign = rospy.Publisher('/detect/image_output', Image, queue_size = 1)
-        """
+    
         self.cvBridge = CvBridge()
 
         self.TrafficSign = Enum('TrafficSign', 'divide stop SPEED_30 slow child parking tunnel consturction fog animal snow')
@@ -174,6 +173,7 @@ class DetectSign():
         self.img4 = cv2.imread(dir_path + 'slow.png',0)       # trainImage3
         self.img5 = cv2.imread(dir_path + 'child.png',0)       # trainImage4
         self.img6 = cv2.imread(dir_path + 'tunnel.png',0)       # trainImage5
+
         """
         self.img6 = cv2.imread(dir_path + 'parking.png',0)       # trainImage5
         self.img7 = cv2.imread(dir_path + 'tunnel.png',0)       # trainImage6
@@ -188,7 +188,7 @@ class DetectSign():
         self.kp4, self.des4 = self.sift.detectAndCompute(self.img4,None)
         self.kp5, self.des5 = self.sift.detectAndCompute(self.img5,None)
         self.kp6, self.des6 = self.sift.detectAndCompute(self.img6,None)
-
+        
         """
         self.kp6, self.des6 = self.sift.detectAndCompute(self.img6,None)
         self.kp7, self.des7 = self.sift.detectAndCompute(self.img7,None)
@@ -290,7 +290,7 @@ class DetectSign():
                 msg_sign = UInt8()
                 msg_sign.data = self.TrafficSign.stop.value
 
-                #self.pub_traffic_sign.publish(msg_sign)
+                self.pub_traffic_sign.publish(msg_sign)
 
                 rospy.loginfo("TrafficSign 2")
 
@@ -322,7 +322,7 @@ class DetectSign():
                 msg_sign = UInt8()
                 msg_sign.data = self.TrafficSign.SPEED_30.value
 
-                #self.pub_traffic_sign.publish(msg_sign)
+                self.pub_traffic_sign.publish(msg_sign)
 
                 rospy.loginfo("TrafficSign 3")
 
@@ -348,7 +348,7 @@ class DetectSign():
                 msg_sign = UInt8()
                 msg_sign.data = self.TrafficSign.slow.value
 
-                #self.pub_traffic_sign.publish(msg_sign)
+                self.pub_traffic_sign.publish(msg_sign)
 
                 rospy.loginfo("TrafficSign 4")
 
@@ -374,7 +374,7 @@ class DetectSign():
                 msg_sign = UInt8()
                 msg_sign.data = self.TrafficSign.child.value
 
-                #self.pub_traffic_sign.publish(msg_sign)
+                self.pub_traffic_sign.publish(msg_sign)
 
                 rospy.loginfo("TrafficSign 5")
 
@@ -385,6 +385,7 @@ class DetectSign():
         else:
             matchesMask5 = None
 
+        
         good6 = []
         for m,n in matches6:
             if m.distance < 0.7*n.distance:
@@ -409,7 +410,7 @@ class DetectSign():
 
         else:
             matchesMask6 = None
-            
+
         """
         good6 = []
         for m,n in matches6:
@@ -575,7 +576,7 @@ class DetectSign():
 
         """
 
-        """
+        
         if image_out_num == 1:
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
@@ -584,7 +585,7 @@ class DetectSign():
             elif self.pub_image_type == "raw":
                 # publishes traffic sign image in raw type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(cv_image_input, "bgr8"))
-        """
+        
         if image_out_num == 2:
             draw_params2 = dict(matchColor = (0,0,255), # draw matches in green color
                             singlePointColor = None,
@@ -595,7 +596,7 @@ class DetectSign():
             self.talker(SELECTION)
             #ob.talker(SELECTION)
             #pub.publish("stop")
-            """
+            
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final2, "jpg"))
@@ -603,7 +604,7 @@ class DetectSign():
             elif self.pub_image_type == "raw":
                 # publishes traffic sign image in raw type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final2, "bgr8"))
-            """
+            
         elif image_out_num == 3:
             draw_params3 = dict(matchColor = (255,0,0), # draw matches in green color
                             singlePointColor = None,
@@ -612,7 +613,7 @@ class DetectSign():
 
             final3 = cv2.drawMatches(cv_image_input,kp1,self.img3,self.kp3,good3,None,**draw_params3)
             self.talker(SELECTION)
-            """
+            
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final3, "jpg"))
@@ -620,7 +621,7 @@ class DetectSign():
             elif self.pub_image_type == "raw":
                 # publishes traffic sign image in raw type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final3, "bgr8"))
-            """
+            
         elif image_out_num == 4:
             draw_params4 = dict(matchColor = (255,0,0), # draw matches in green color
                             singlePointColor = None,
@@ -629,7 +630,7 @@ class DetectSign():
 
             final4 = cv2.drawMatches(cv_image_input,kp1,self.img4,self.kp4,good4,None,**draw_params4)
             self.talker(SELECTION)
-            """
+            
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final4, "jpg"))
@@ -637,7 +638,7 @@ class DetectSign():
             elif self.pub_image_type == "raw":
                 # publishes traffic sign image in raw type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final4, "bgr8"))
-            """
+            
         elif image_out_num == 5:
             draw_params5 = dict(matchColor = (255,0,0), # draw matches in green color
                             singlePointColor = None,
@@ -650,16 +651,7 @@ class DetectSign():
 
             #self.child_zone = 5
             #rospy.loginfo("CAME IN!!!!!")
-
-        elif image_out_num == 6:
-            draw_params6 = dict(matchColor = (255,0,0), # draw matches in green color
-                            singlePointColor = None,
-                            matchesMask = matchesMask6, # draw only inliers
-                            flags = 2)
-
-            final6 = cv2.drawMatches(cv_image_input,kp1,self.img6,self.kp6,good6,None,**draw_params6)            
-
-            """
+            
             if self.pub_image_type == "compressed":
                 # publishes traffic sign image in compressed type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final5, "jpg"))
@@ -667,7 +659,22 @@ class DetectSign():
             elif self.pub_image_type == "raw":
                 # publishes traffic sign image in raw type
                 self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final5, "bgr8"))
-            """
+                
+        elif image_out_num == 6:
+            draw_params6 = dict(matchColor = (255,0,0), # draw matches in green color
+                            singlePointColor = None,
+                            matchesMask = matchesMask6, # draw only inliers
+                            flags = 2)
+
+            final6 = cv2.drawMatches(cv_image_input,kp1,self.img6,self.kp6,good6,None,**draw_params6)
+            
+            if self.pub_image_type == "compressed":
+                # publishes traffic sign image in compressed type
+                self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_compressed_imgmsg(final6, "jpg"))
+
+            elif self.pub_image_type == "raw":
+                # publishes traffic sign image in raw type
+                self.pub_image_traffic_sign.publish(self.cvBridge.cv2_to_imgmsg(final6, "bgr8"))
         
     """
         elif image_out_num == 6:

@@ -19,11 +19,13 @@
 
 # Author: Leon Jung, Gilbert
 
-import rospy
+import rospy, roslaunch
 from geometry_msgs.msg import Twist
 import sys, select, os
 import tty, termios
 from std_msgs.msg import String
+import time
+import uuid
 
 WAFFLE_MAX_LIN_VEL = 0.26
 WAFFLE_MAX_ANG_VEL = 1.82
@@ -113,62 +115,114 @@ def starter(data):
     pub.publish(starter)
 """
 
+#def __init__():
 def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + "I got %s", data.data) # from detect_sign
+    rospy.loginfo(rospy.get_caller_id() + "%s sign is detected.", data.data) # from detect_sign
     #data.data = "Substitution!!!!!!!!----------------------------"
     #rospy.loginfo(data.data)
     
     pub = rospy.Publisher('move', Twist, queue_size=10) # to turtlebot3
     turtlebot3_model = rospy.get_param("model", "burger")
 
-    status = 0
     target_linear_vel   = 0.0
     target_angular_vel  = 0.0
-    control_linear_vel  = 0.0
-    control_angular_vel = 0.0
-    
     
     if(data.data == 'SPEED_30'):
-        target_linear_vel = 0.0
+        target_linear_vel = 0.05
         target_linear_vel = checkLinearLimitVelocity(target_linear_vel + LIN_VEL_STEP_SIZE)
-        status = status + 1
-        rospy.loginfo(target_linear_vel)
+        
         #rospy.loginfo("speed: 30m/s")
 
         twist = Twist()
 
-        control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
-        twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+        #control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = target_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
 
-        control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
-        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
-                                
+        #control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = target_angular_vel
+        rospy.loginfo(target_linear_vel)                        
         pub.publish(twist)
 
     elif(data.data == 'stop'):
         target_linear_vel   = 0.0
-        control_linear_vel  = 0.0
         target_angular_vel  = 0.0
-        control_angular_vel = 0.0
         print(vels(target_linear_vel, target_angular_vel))
         #rospy.loginfo("speed: 0m/s")
         
         twist = Twist()
 
-        control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
-        twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+        #control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = target_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
 
-        control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
-        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
+        #control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = target_angular_vel
+
+        rospy.loginfo(twist.linear.x)                        
+        pub.publish(twist)
+    
+    
+    elif(data.data == 'child'):
+        #launch_detect_stop = roslaunch.scriptapi.ROSLaunch()
+        #launch_detect_stop = roslaunch.parent.ROSLaunchParent(uuid, [ros_package_path + "/turtlebot3_autorace_detect/launch/turtlebot3_teleop_key.launch"])
+        #launch_detect_stop.start()
+        #rospy.loginfo("helloo----------------")
+        #time.sleep(3)
+        #self.launch_detect_stop.shutdown()
+        #pub = rospy.Publisher('mode_change', String, queue_size=10)
+        #rospy.loginfo("------- School zone! Be carefull. -------")
+        #info = 'child'
+        #pub.publish(info)
+        rospy.loginfo("School zone! Be careful!!")
+        """
+        school_zone = roslaunch.scriptapi.ROSLaunch()
+        school_zone = roslaunch.parent.ROSLaunchParent(uuid, [ros_package_path + "turtlebot3_autorace_detect/launch/turtlebot3_teleop_key.launch"])
+        school_zone.start()
+
+        
+        target_linear_vel   = 0.02
+        target_angular_vel  = 0.0
+        print(vels(target_linear_vel, target_angular_vel))
+        #rospy.loginfo("speed: 0m/s")
+        
+        twist = Twist()
+
+        #control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = target_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+
+        #control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = target_angular_vel
                                 
         pub.publish(twist)
-        
+        """
     
+    elif(data.data == 'slow'):
+        target_linear_vel = 0.02
+        target_linear_vel = checkLinearLimitVelocity(target_linear_vel - LIN_VEL_STEP_SIZE)
+        rospy.loginfo(target_linear_vel)
+        
+        twist = Twist()
+
+        #control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+        twist.linear.x = target_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+
+        #control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+        twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = target_angular_vel
+                                
+        pub.publish(twist)
+
+
         #rospy.loginfo("which????????")
         #rospy.loginfo(twist)
-        
-        
- 
+"""
+def mode_controll():
+    uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)    
+    ros_package_path = os.path.dirname(os.path.realpath(__file__))
+    ros_package_path = ros_package_path.replace('turtlebot3_autorace_detect/nodes', '')
+
+    launch_detect_stop = roslaunch.scriptapi.ROSLaunch()
+    launch_detect_stop = roslaunch.parent.ROSLaunchParent(uuid, [ros_package_path + "turtlebot3_autorace_detect/launch/turtlebot3_teleop_key.launch"])
+    launch_detect_stop.start()
+"""      
 def Decider():
     rospy.init_node('listner', anonymous=True)
     rospy.Subscriber("chatter", String, callback)
@@ -205,8 +259,10 @@ def Decider():
    
     """
 
+
 if __name__ == '__main__':
     Decider()
+    
     #rospy.init_node('listner', anonymous=True)
     #while(1):
     #    rospy.Subscriber("chatter", String, callback)
