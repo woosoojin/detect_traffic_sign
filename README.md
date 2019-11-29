@@ -11,8 +11,7 @@ To activate all sensors:
 $ roslaunch turtlebot3_bringup alltogether.launch
 </code></pre>
 
-<pre><code>
-<br>Settings for recognition<br>
+<pre><code><br>Settings for recognition<br>
 </code></pre>
 
 <br>
