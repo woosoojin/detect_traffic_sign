@@ -12,7 +12,12 @@ To activate all sensors:
 $ roslaunch turtlebot3_bringup alltogether.launch
 </code></pre>
 
-<pre><code><br>Settings for recognition<br>
+Settings for recognition
+<pre><code><br>[remote PC]<br>
+$ export AUTO_IN_CALIB=action
+$ roslaunch turtlebot3_autorace_camera turtlebot3_autorace_intrinsic_camera_calibration.launch
+$ export AUTO_EX_CALIB=action
+$ roslaunch turtlebot3_autorace_camera turtlebot3_autorace_extrinsic_camera_calibration.launch
 </code></pre>
 
 <br>
