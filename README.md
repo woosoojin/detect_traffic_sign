@@ -16,6 +16,7 @@ $ roslaunch turtlebot3_bringup alltogether.launch
 Settings for recognition
 <pre><code><br>[remote PC]<br>
 $ export AUTO_IN_CALIB=action
+$ export GAZEBO_MODE=false
 $ roslaunch turtlebot3_autorace_camera turtlebot3_autorace_intrinsic_camera_calibration.launch
 <br>
 $ export AUTO_EX_CALIB=action
